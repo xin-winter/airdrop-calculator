@@ -222,7 +222,7 @@
     function resetResult() {
         resultTextEl.innerHTML = `
             <span class="time-text time-placeholder">--:--</span> 时可以抢空投！<br>
-            请在 <span class="time-text time-placeholder">--:--</span> 之前做好准备
+            
         `;
         errorMsgEl.style.display = 'none';
         errorMsgEl.innerText = '';
@@ -289,7 +289,7 @@
         // 更新 UI (使用红色高亮样式 time-active)
         resultTextEl.innerHTML = `
             <span class="time-text time-active">${timeStr}</span> 时可以抢空投！<br>
-            请在 <span class="time-text time-active">${timeStr}</span> 之前做好准备
+            
         `;
     }
 
