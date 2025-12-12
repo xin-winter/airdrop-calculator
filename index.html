@@ -151,7 +151,6 @@
         .calendar-section {
             background: var(--card-bg);
             border-radius: var(--radius);
-            /* 调整 padding-top，以在删除 calendar-header 后减少留白 */
             padding: 20px 30px 30px 30px; 
             box-shadow: var(--shadow-md);
         }
@@ -371,7 +370,7 @@
 
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-        <h3 id="modal-title">收支记录</h3>
+        <h3 id="modal-title">记账录入</h3>
         <div class="form-group">
             <label>收入 </label>
             <input type="number" id="input-revenue" placeholder="0.00">
@@ -547,6 +546,7 @@
     /* =========================================
        逻辑 2: 时间计算器 (Time Tool)
        ========================================= */
+    const TIME_STORAGE_KEY = 'airdrop_time_calculator_data'; // 新增存储键
     const currentScoreEl = document.getElementById('currentScore');
     const startThresholdEl = document.getElementById('startThreshold');
     const startTimeEl = document.getElementById('startTime');
@@ -557,12 +557,40 @@
     const iconThreshold = document.getElementById('iconThreshold');
     const iconTime = document.getElementById('iconTime');
 
+    // 新增：保存倒计时数据
+    function saveTimeData() {
+        const data = {
+            score: currentScoreEl.value,
+            threshold: startThresholdEl.value,
+            time: startTimeEl.value
+        };
+        localStorage.setItem(TIME_STORAGE_KEY, JSON.stringify(data));
+    }
+    
+    // 新增：加载倒计时数据
+    function loadTimeData() {
+        const saved = localStorage.getItem(TIME_STORAGE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                currentScoreEl.value = data.score || '';
+                startThresholdEl.value = data.threshold || '';
+                startTimeEl.value = data.time || '';
+            } catch (e) {
+                console.error("Failed to load time data:", e);
+            }
+        }
+    }
+
     function resetTimeResult() {
         resultTextEl.innerHTML = `<span class="time-text time-placeholder">--:--</span> 可以抢空投！`;
         errorMsgEl.style.display = 'none';
     }
 
     function calculateTime() {
+        // 每次计算前保存数据
+        saveTimeData(); 
+
         const scoreVal = currentScoreEl.value;
         const threshVal = startThresholdEl.value;
         const timeVal = startTimeEl.value;
@@ -621,13 +649,16 @@
     iconThreshold.onclick = () => clearInput(startThresholdEl);
     iconTime.onclick = () => { if(startTimeEl.value) clearInput(startTimeEl); };
 
+    // 在输入事件中触发保存和计算
     currentScoreEl.oninput = calculateTime;
     startThresholdEl.oninput = calculateTime;
     startTimeEl.oninput = calculateTime;
 
     // 启动初始化
     initRevenueTool();
-    calculateTime(); 
+    loadTimeData(); // 新增：页面加载时首先加载数据
+    calculateTime(); // 接着计算结果
+    
 
 </script>
 
