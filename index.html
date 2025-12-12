@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空投助手合集</title>
+    <title>空投助手合集 (终极优化版)</title>
     <style>
         :root {
-            /* === 全局配色 (基于记账面板风格) === */
+            /* === 全局配色 === */
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --primary-text: #1f2937;
             --secondary-text: #9ca3af;
-            --accent-color: #ff6b6b; /* 强调红 */
-            --wear-color: #059669;   /* 磨损绿 */
+            --accent-color: #ff6b6b; /* 强调红 / 收入 & 净利红 */
+            --wear-color: #059669;   /* 磨损绿 / 亏损绿 */
             --btn-hover: #fa5252;
             --active-tab-bg: #ffffff;
             --inactive-tab-text: #6b7280;
@@ -42,7 +42,7 @@
 
         .container {
             width: 100%;
-            max-width: 800px; /* 记账本较宽 */
+            max-width: 800px; 
             display: flex;
             flex-direction: column;
             gap: 25px;
@@ -87,7 +87,7 @@
             animation: fadeIn 0.3s ease;
         }
         .tool-section.active {
-            display: flex; /* Flex 布局用于内部排版 */
+            display: flex; 
             flex-direction: column;
             gap: 25px;
         }
@@ -98,13 +98,15 @@
         }
 
         /* =========================================
-           工具 1: 记账面板 CSS (保留原有样式)
+           工具 1: 记账面板 CSS 
            ========================================= */
         
-        .controls-container {
+        /* 重置按钮底部容器 */
+        .reset-btn-container {
+            padding-top: 5px; 
+            margin-top: 10px;
             display: flex;
-            justify-content: flex-end; 
-            margin-bottom: -10px; 
+            justify-content: center;
         }
         
         .reset-btn {
@@ -112,10 +114,12 @@
             color: var(--secondary-text);
             background: none;
             border: 1px solid #e5e7eb;
-            padding: 6px 12px;
+            padding: 8px 15px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            width: 200px; 
+            font-weight: 500;
         }
         .reset-btn:hover {
             color: #ef4444;
@@ -141,7 +145,7 @@
         .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .stat-label { font-size: 14px; color: var(--secondary-text); margin-bottom: 8px; font-weight: 500; }
         .stat-value { font-size: 28px; font-weight: 700; color: var(--accent-color); letter-spacing: -0.5px; }
-        .stat-card.wear .stat-value { color: var(--wear-color); } /* 绿色磨损 */
+        .stat-card.wear .stat-value { color: var(--wear-color); } 
         .stat-card.profit .stat-value { color: var(--primary-text); }
 
         .calendar-section {
@@ -184,23 +188,23 @@
         .day-cell.has-data { border-color: var(--accent-color); background-color: #fff1f2; }
         .day-number { font-size: 16px; font-weight: 600; color: var(--primary-text); }
         
+        /* 日历指示器颜色控制 */
         .day-indicator { font-size: 10px; margin-top: 4px; display: none; }
         .day-cell.has-data .day-indicator { display: block; }
-        .day-indicator .revenue-text { color: var(--accent-color); }
-        .day-indicator .wear-text { color: var(--wear-color); }
+        .day-indicator .positive-profit { color: var(--accent-color); } /* 净利润为正：红 */
+        .day-indicator .negative-profit { color: var(--wear-color); }   /* 净利润为负：绿 */
 
         /* =========================================
-           工具 2: 时间计算器 CSS (样式适配整合)
+           工具 2: 时间计算器 CSS 
            ========================================= */
         
-        /* 限制时间工具的宽度，使其在宽屏下居中且不至于过宽 */
         .time-tool-wrapper {
             background: var(--card-bg);
             border-radius: var(--radius);
             padding: 40px;
             box-shadow: var(--shadow-md);
             max-width: 500px;
-            margin: 0 auto; /* 居中 */
+            margin: 0 auto; 
             width: 100%;
         }
 
@@ -213,69 +217,40 @@
 
         .input-group { margin-bottom: 20px; }
         .input-group label {
-            display: block;
-            font-size: 14px;
-            color: var(--secondary-text);
-            margin-bottom: 8px;
+            display: block; font-size: 14px;
+            color: var(--secondary-text); margin-bottom: 8px;
         }
         
         .input-wrapper { position: relative; display: flex; align-items: center; }
 
         .time-tool-input {
-            width: 100%;
-            padding: 14px;
-            padding-right: 40px; /* 给图标留位置 */
-            font-size: 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background-color: #f9fafb;
-            color: var(--primary-text);
-            outline: none;
+            width: 100%; padding: 14px; padding-right: 40px; 
+            font-size: 16px; border: 1px solid #e5e7eb;
+            border-radius: 8px; background-color: #f9fafb;
+            color: var(--primary-text); outline: none;
             transition: border-color 0.2s, background 0.2s;
         }
         
-        .time-tool-input:focus {
-            border-color: var(--accent-color);
-            background: #fff;
-        }
-
-        /* 隐藏时间输入框默认图标 */
+        .time-tool-input:focus { border-color: var(--accent-color); background: #fff; }
         input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 
-        /* 输入框内图标 */
         .input-icon {
-            position: absolute;
-            right: 15px;
-            width: 18px;
-            height: 18px;
-            opacity: 0.5;
-            background-size: cover;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            position: absolute; right: 15px; width: 18px; height: 18px;
+            opacity: 0.5; background-size: cover; cursor: pointer; transition: opacity 0.2s;
         }
         .input-icon:hover { opacity: 1; }
 
-        .icon-clear {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='%23BDBDBD'/%3E%3Cpath d='M13.41 12l3.29-3.29a1 1 0 10-1.42-1.42L12 10.59l-3.29-3.3a1 1 0 00-1.42 1.42l3.29 3.29-3.29 3.29a1 1 0 001.42 1.42l3.29-3.29 3.29 3.29a1 1 0 001.42-1.42z' fill='%23fff'/%3E%3C/svg%3E");
-        }
-        .icon-time {
-            cursor: default;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpolyline points='12 6 12 12 16 14'%3E%3C/polyline%3E%3C/svg%3E");
-        }
+        .icon-clear { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='%23BDBDBD'/%3E%3Cpath d='M13.41 12l3.29-3.29a1 1 0 10-1.42-1.42L12 10.59l-3.29-3.3a1 1 0 00-1.42 1.42l3.29 3.29-3.29 3.29a1 1 0 001.42 1.42l3.29-3.29 3.29 3.29a1 1 0 001.42-1.42z' fill='%23fff'/%3E%3C/svg%3E"); }
+        .icon-time { cursor: default; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpolyline points='12 6 12 12 16 14'%3E%3C/polyline%3E%3C/svg%3E"); }
 
         .result-box {
-            margin-top: 30px;
-            padding-top: 25px;
-            border-top: 1px dashed #e5e7eb;
-            text-align: center;
+            margin-top: 30px; padding-top: 25px;
+            border-top: 1px dashed #e5e7eb; text-align: center;
         }
         .result-text { font-size: 16px; color: var(--primary-text); }
         .time-text {
-            font-size: 28px;
-            font-weight: 700;
-            font-family: monospace;
-            display: inline-block;
-            margin: 0 5px;
+            font-size: 28px; font-weight: 700; font-family: monospace;
+            display: inline-block; margin: 0 5px;
         }
         .time-active { color: var(--accent-color); }
         .time-placeholder { color: #d1d5db; }
@@ -286,10 +261,8 @@
            通用：弹窗 Modal
            ========================================= */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
             z-index: 1000;
@@ -332,16 +305,12 @@
 <div class="container">
     <div class="tabs-wrapper">
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('revenue')">记账面板</button>
-            <button class="tab-btn" onclick="switchTab('time')">抢购倒计时</button>
+            <button class="tab-btn active" onclick="switchTab('revenue', this)">记账面板</button>
+            <button class="tab-btn" onclick="switchTab('time', this)">抢购倒计时</button>
         </div>
     </div>
 
     <div id="section-revenue" class="tool-section active">
-        <div class="controls-container">
-            <button class="reset-btn" onclick="clearAllData()">重置数据</button>
-        </div>
-
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-label">总收入</div>
@@ -363,6 +332,10 @@
                 <div>周五</div><div>周六</div><div>周日</div>
             </div>
             <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+        
+        <div class="reset-btn-container">
+            <button class="reset-btn" onclick="clearAllData()">重置数据</button>
         </div>
     </div>
 
@@ -428,11 +401,11 @@
     /* =========================================
        全局：Tab 切换逻辑
        ========================================= */
-    function switchTab(tabName) {
+    function switchTab(tabName, clickedButton) {
         // 切换按钮状态
         const buttons = document.querySelectorAll('.tab-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        if(clickedButton) clickedButton.classList.add('active');
 
         // 切换内容显示
         const sections = document.querySelectorAll('.tool-section');
@@ -445,6 +418,7 @@
        逻辑 1: 记账面板 (Revenue Tool)
        ========================================= */
     const LEDGER_STORAGE_KEY = 'my_accounting_app_v1';
+    const DEFAULT_WEAR = '1.7'; // 新增：默认磨损值
     let ledgerData = {};
     let currentSelectedDate = null;
 
@@ -483,11 +457,21 @@
         }
     }
 
+    // 关键修改：设置磨损的默认值
     function openModal(date) {
         currentSelectedDate = date;
-        const data = ledgerData[date] || { revenue: '', wear: '' };
-        document.getElementById('input-revenue').value = data.revenue;
-        document.getElementById('input-wear').value = data.wear;
+        const data = ledgerData[date];
+        
+        if (data) {
+            // 已有数据：加载保存值
+            document.getElementById('input-revenue').value = data.revenue;
+            document.getElementById('input-wear').value = data.wear;
+        } else {
+            // 新增记录：设置磨损默认值
+            document.getElementById('input-revenue').value = '';
+            document.getElementById('input-wear').value = DEFAULT_WEAR; 
+        }
+
         document.getElementById('modal-overlay').classList.add('open');
         setTimeout(() => document.getElementById('input-revenue').focus(), 100);
     }
@@ -502,7 +486,6 @@
         const rev = parseFloat(document.getElementById('input-revenue').value);
         const wear = parseFloat(document.getElementById('input-wear').value);
         
-        // 简单判空逻辑
         if ((isNaN(rev) && isNaN(wear)) || (rev===0 && wear===0) || (document.getElementById('input-revenue').value==='' && document.getElementById('input-wear').value==='')) {
             delete ledgerData[currentSelectedDate];
         } else {
@@ -516,6 +499,7 @@
         closeModal();
     }
 
+    // 日历只展示净利润
     function updateRevenueUI() {
         let totalRev = 0, totalWear = 0;
         for (let date in ledgerData) {
@@ -524,6 +508,7 @@
         }
         const profit = totalRev - totalWear;
 
+        // 顶部总览不变
         document.getElementById('total-revenue').innerText = '$' + totalRev.toLocaleString();
         document.getElementById('total-wear').innerText = '$' + totalWear.toLocaleString();
         document.getElementById('total-profit').innerText = '$' + profit.toLocaleString();
@@ -534,23 +519,35 @@
             const indicator = cell.querySelector('.day-indicator');
             cell.classList.remove('has-data');
             indicator.innerHTML = '';
+            indicator.style.color = ''; 
 
             if (ledgerData[d]) {
                 cell.classList.add('has-data');
                 const rev = ledgerData[d].revenue;
                 const wear = ledgerData[d].wear;
+                const dailyProfit = parseFloat((rev - wear).toFixed(2)); // 精确到两位小数
                 let content = '';
-                if (rev > 0 && wear > 0) content = `<span class="revenue-text">+$${rev}</span> / <span class="wear-text">-$${wear}</span>`;
-                else if (rev > 0) content = `<span class="revenue-text">+$${rev}</span>`;
-                else if (wear > 0) content = `<span class="wear-text">-$${wear}</span>`;
-                else { content = '已记账'; indicator.style.color = '#9ca3af'; }
+
+                if (dailyProfit > 0) {
+                    content = `<span class="positive-profit">+$${dailyProfit.toLocaleString()}</span>`;
+                } else if (dailyProfit < 0) {
+                    const dailyLoss = Math.abs(dailyProfit);
+                    content = `<span class="negative-profit">-$${dailyLoss.toLocaleString()}</span>`;
+                } else if (rev > 0 || wear > 0) {
+                    content = `净利 $0`; 
+                    indicator.style.color = 'var(--secondary-text)';
+                } else {
+                    content = '已记账';
+                    indicator.style.color = 'var(--secondary-text)';
+                }
+                
                 indicator.innerHTML = content;
             }
         });
     }
 
     function clearAllData() {
-        if(confirm("确定清空账本数据？")) {
+        if(confirm("确定要清空所有账本数据吗？此操作无法撤销。")) {
             ledgerData = {};
             localStorage.removeItem(LEDGER_STORAGE_KEY);
             updateRevenueUI();
@@ -624,14 +621,14 @@
         resultTextEl.innerHTML = `<span class="time-text time-active">${resTime}</span> 可以抢空投！`;
     }
 
-    function clearInput(el, icon) {
+    function clearInput(el) {
         el.value = '';
         calculateTime();
     }
 
     // 事件绑定
-    iconScore.onclick = () => clearInput(currentScoreEl, iconScore);
-    iconThreshold.onclick = () => clearInput(startThresholdEl, iconThreshold);
+    iconScore.onclick = () => clearInput(currentScoreEl);
+    iconThreshold.onclick = () => clearInput(startThresholdEl);
     iconTime.onclick = () => { if(startTimeEl.value) clearInput(startTimeEl); };
 
     currentScoreEl.oninput = calculateTime;
@@ -640,7 +637,7 @@
 
     // 启动初始化
     initRevenueTool();
-    calculateTime(); // 初始化时间计算器状态
+    calculateTime(); 
 
 </script>
 
