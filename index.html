@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空投助手合集 (终极优化版)</title>
+    <title>空投助手</title>
     <style>
         :root {
             /* === 全局配色 === */
@@ -151,18 +151,12 @@
         .calendar-section {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 30px;
+            /* 调整 padding-top，以在删除 calendar-header 后减少留白 */
+            padding: 20px 30px 30px 30px; 
             box-shadow: var(--shadow-md);
         }
 
-        .calendar-header {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: var(--secondary-text);
-        }
+        /* 移除 .calendar-header 的 CSS 样式块 */
 
         .calendar-grid {
             display: grid;
@@ -327,10 +321,6 @@
         </div>
 
         <div class="calendar-section">
-            <div class="calendar-header">
-                <div>周一</div><div>周二</div><div>周三</div><div>周四</div>
-                <div>周五</div><div>周六</div><div>周日</div>
-            </div>
             <div class="calendar-grid" id="calendar-grid"></div>
         </div>
         
@@ -381,7 +371,7 @@
 
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-        <h3 id="modal-title">记账录入</h3>
+        <h3 id="modal-title">收支记录</h3>
         <div class="form-group">
             <label>收入 </label>
             <input type="number" id="input-revenue" placeholder="0.00">
