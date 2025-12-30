@@ -61,10 +61,12 @@
             border-radius: 12px;
             display: flex;
             gap: 4px;
+            flex-wrap: wrap; /* 防止小屏幕换行溢出 */
+            justify-content: center;
         }
 
         .tab-btn {
-            padding: 8px 24px;
+            padding: 8px 16px; /* 稍微减小内边距以适应更多按钮 */
             border: none;
             background: transparent;
             font-size: 14px;
@@ -101,7 +103,6 @@
            工具 1: 记账面板 CSS 
            ========================================= */
         
-        /* 重置按钮底部容器 */
         .reset-btn-container {
             padding-top: 5px; 
             margin-top: 10px;
@@ -155,8 +156,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* 移除 .calendar-header 的 CSS 样式块 */
-
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -181,14 +180,13 @@
         .day-cell.has-data { border-color: var(--accent-color); background-color: #fff1f2; }
         .day-number { font-size: 16px; font-weight: 600; color: var(--primary-text); }
         
-        /* 日历指示器颜色控制 */
         .day-indicator { font-size: 10px; margin-top: 4px; display: none; }
         .day-cell.has-data .day-indicator { display: block; }
-        .day-indicator .positive-profit { color: var(--accent-color); } /* 净利润为正：红 */
-        .day-indicator .negative-profit { color: var(--wear-color); }   /* 净利润为负：绿 */
+        .day-indicator .positive-profit { color: var(--accent-color); } 
+        .day-indicator .negative-profit { color: var(--wear-color); }
 
         /* =========================================
-           工具 2: 时间计算器 CSS 
+           工具 2 & 3: 通用输入框工具 CSS (倒计时 & 磨损计算)
            ========================================= */
         
         .time-tool-wrapper {
@@ -299,6 +297,7 @@
     <div class="tabs-wrapper">
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('revenue', this)">记账面板</button>
+            <button class="tab-btn" onclick="switchTab('wear', this)">磨损计算工具</button>
             <button class="tab-btn" onclick="switchTab('time', this)">空投倒计时</button>
         </div>
     </div>
@@ -325,6 +324,36 @@
         
         <div class="reset-btn-container">
             <button class="reset-btn" onclick="clearAllData()">重置数据</button>
+        </div>
+    </div>
+
+    <div id="section-wear" class="tool-section">
+        <div class="time-tool-wrapper">
+            <div class="tool-header">
+                <h2>磨损计算工具</h2>
+            </div>
+            
+            <div class="input-group">
+                <label>当前存量</label>
+                <div class="input-wrapper">
+                    <input type="number" id="wearStock" class="time-tool-input" placeholder="请输入当前存量" step="0.01">
+                    <div class="input-icon icon-clear" id="iconWearStock" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>今日损耗 </label>
+                <div class="input-wrapper">
+                    <input type="number" id="wearToday" class="time-tool-input" placeholder="请输入今日损耗" step="0.01">
+                    <div class="input-icon icon-clear" id="iconWearToday" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-text">
+                     <span id="wearResultText" class="time-text time-placeholder">--.--</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -400,14 +429,15 @@
         const sections = document.querySelectorAll('.tool-section');
         sections.forEach(sec => sec.classList.remove('active'));
         
-        document.getElementById(`section-${tabName}`).classList.add('active');
+        const target = document.getElementById(`section-${tabName}`);
+        if(target) target.classList.add('active');
     }
 
     /* =========================================
        逻辑 1: 记账面板 (Revenue Tool)
        ========================================= */
     const LEDGER_STORAGE_KEY = 'my_accounting_app_v1';
-    const DEFAULT_WEAR = '1.7'; // 新增：默认磨损值
+    const DEFAULT_WEAR = '1.7'; 
     let ledgerData = {};
     let currentSelectedDate = null;
 
@@ -446,17 +476,14 @@
         }
     }
 
-    // 关键修改：设置磨损的默认值
     function openModal(date) {
         currentSelectedDate = date;
         const data = ledgerData[date];
         
         if (data) {
-            // 已有数据：加载保存值
             document.getElementById('input-revenue').value = data.revenue;
             document.getElementById('input-wear').value = data.wear;
         } else {
-            // 新增记录：设置磨损默认值
             document.getElementById('input-revenue').value = '';
             document.getElementById('input-wear').value = DEFAULT_WEAR; 
         }
@@ -488,7 +515,6 @@
         closeModal();
     }
 
-    // 日历只展示净利润
     function updateRevenueUI() {
         let totalRev = 0, totalWear = 0;
         for (let date in ledgerData) {
@@ -497,7 +523,6 @@
         }
         const profit = totalRev - totalWear;
 
-        // 顶部总览不变
         document.getElementById('total-revenue').innerText = '$' + totalRev.toLocaleString();
         document.getElementById('total-wear').innerText = '$' + totalWear.toLocaleString();
         document.getElementById('total-profit').innerText = '$' + profit.toLocaleString();
@@ -514,7 +539,7 @@
                 cell.classList.add('has-data');
                 const rev = ledgerData[d].revenue;
                 const wear = ledgerData[d].wear;
-                const dailyProfit = parseFloat((rev - wear).toFixed(2)); // 精确到两位小数
+                const dailyProfit = parseFloat((rev - wear).toFixed(2)); 
                 let content = '';
 
                 if (dailyProfit > 0) {
@@ -544,9 +569,75 @@
     }
 
     /* =========================================
-       逻辑 2: 时间计算器 (Time Tool)
+       逻辑 2: 磨损计算工具 (Wear Calculator - NEW)
        ========================================= */
-    const TIME_STORAGE_KEY = 'airdrop_time_calculator_data'; // 新增存储键
+    const WEAR_CALC_STORAGE_KEY = 'wear_calculator_data';
+    const wearStockEl = document.getElementById('wearStock');
+    const wearTodayEl = document.getElementById('wearToday');
+    const wearResultTextEl = document.getElementById('wearResultText');
+    const iconWearStock = document.getElementById('iconWearStock');
+    const iconWearToday = document.getElementById('iconWearToday');
+
+    function saveWearCalcData() {
+        const data = {
+            stock: wearStockEl.value,
+            today: wearTodayEl.value
+        };
+        localStorage.setItem(WEAR_CALC_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadWearCalcData() {
+        const saved = localStorage.getItem(WEAR_CALC_STORAGE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                wearStockEl.value = data.stock || '';
+                wearTodayEl.value = data.today || '';
+            } catch (e) { console.error(e); }
+        }
+    }
+
+    function calculateWearDifference() {
+        saveWearCalcData(); // 保存输入
+
+        const stockVal = parseFloat(wearStockEl.value);
+        const todayVal = parseFloat(wearTodayEl.value);
+
+        // 图标显示控制
+        iconWearStock.style.display = wearStockEl.value ? 'block' : 'none';
+        iconWearToday.style.display = wearTodayEl.value ? 'block' : 'none';
+
+        if (isNaN(stockVal) || isNaN(todayVal)) {
+            wearResultTextEl.innerText = '--.--';
+            wearResultTextEl.classList.add('time-placeholder');
+            wearResultTextEl.classList.remove('time-active');
+            return;
+        }
+
+        // 计算差值
+        const result = stockVal - todayVal;
+        
+        wearResultTextEl.classList.remove('time-placeholder');
+        wearResultTextEl.classList.add('time-active');
+        wearResultTextEl.innerText = result.toFixed(2); // 保留两位小数
+    }
+
+    // 清除输入
+    function clearWearInput(el) {
+        el.value = '';
+        calculateWearDifference();
+    }
+
+    // 事件绑定
+    wearStockEl.oninput = calculateWearDifference;
+    wearTodayEl.oninput = calculateWearDifference;
+    iconWearStock.onclick = () => clearWearInput(wearStockEl);
+    iconWearToday.onclick = () => clearWearInput(wearTodayEl);
+
+    /* =========================================
+       逻辑 3: 时间计算器 (Time Tool)
+       ========================================= */
+    const TIME_STORAGE_KEY = 'airdrop_time_calculator_data'; 
     const currentScoreEl = document.getElementById('currentScore');
     const startThresholdEl = document.getElementById('startThreshold');
     const startTimeEl = document.getElementById('startTime');
@@ -557,7 +648,6 @@
     const iconThreshold = document.getElementById('iconThreshold');
     const iconTime = document.getElementById('iconTime');
 
-    // 新增：保存倒计时数据
     function saveTimeData() {
         const data = {
             score: currentScoreEl.value,
@@ -567,7 +657,6 @@
         localStorage.setItem(TIME_STORAGE_KEY, JSON.stringify(data));
     }
     
-    // 新增：加载倒计时数据
     function loadTimeData() {
         const saved = localStorage.getItem(TIME_STORAGE_KEY);
         if (saved) {
@@ -588,14 +677,12 @@
     }
 
     function calculateTime() {
-        // 每次计算前保存数据
         saveTimeData(); 
 
         const scoreVal = currentScoreEl.value;
         const threshVal = startThresholdEl.value;
         const timeVal = startTimeEl.value;
 
-        // 图标显隐
         iconScore.style.display = scoreVal ? 'block' : 'none';
         iconThreshold.style.display = threshVal ? 'block' : 'none';
         
@@ -649,16 +736,16 @@
     iconThreshold.onclick = () => clearInput(startThresholdEl);
     iconTime.onclick = () => { if(startTimeEl.value) clearInput(startTimeEl); };
 
-    // 在输入事件中触发保存和计算
     currentScoreEl.oninput = calculateTime;
     startThresholdEl.oninput = calculateTime;
     startTimeEl.oninput = calculateTime;
 
     // 启动初始化
     initRevenueTool();
-    loadTimeData(); // 新增：页面加载时首先加载数据
-    calculateTime(); // 接着计算结果
-    
+    loadTimeData(); 
+    loadWearCalcData(); // 加载磨损计算器数据
+    calculateTime(); 
+    calculateWearDifference(); // 计算磨损
 
 </script>
 
