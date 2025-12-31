@@ -174,48 +174,50 @@
         .calendar-section {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 25px; /* 稍微减少外边距，留给内容 */
+            padding: 25px; 
             box-shadow: var(--shadow-md);
         }
 
+        /* === 关键修改：日历网格改为 6 列 === */
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 12px; /* 间距微调，让格子更紧凑一点点 */
+            grid-template-columns: repeat(6, 1fr); /* 核心修改：每行 6 个格子 */
+            gap: 10px; /* 间距微调 */
         }
 
-        /* === 优化后的日历格子 === */
+        /* === 关键修改：日历格子强制等宽等高 === */
         .day-cell {
-            /* 移除 aspect-ratio，改用 min-height 撑开高度 */
-            min-height: 90px; 
-            border-radius: 14px; /* 圆角稍微大一点 */
+            aspect-ratio: 1; /* 强制等宽等高 */
+            border-radius: 12px; 
             background-color: #f9fafb;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* 内容置顶 */
-            padding: 12px 4px; /* 增加内边距 */
+            justify-content: center; /* 居中显示内容 */
+            padding: 8px; 
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
             border: 2px solid transparent;
         }
 
-        .day-cell:hover { background-color: #e5e7eb; transform: scale(1.02); } /* 添加轻微放大效果 */
+        .day-cell:hover { background-color: #e5e7eb; transform: scale(1.02); }
         .day-cell.has-data { border-color: var(--accent-color); background-color: #fff1f2; }
         
         .day-number { 
-            font-size: 20px; /* 增大字体 */
+            font-size: 18px; /* 字体大小适配正方形格子 */
             font-weight: 700; 
             color: var(--primary-text); 
-            margin-bottom: 8px; /* 增加与金额的间距 */
+            margin-bottom: 4px; 
         }
         
         .day-indicator { 
-            font-size: 12px; /* 增大金额字体 */
+            font-size: 10px; 
             font-weight: 500;
             display: none; 
             line-height: 1.3;
+            /* 确保金额文字不换行 */
+            white-space: nowrap; 
         }
         .day-cell.has-data .day-indicator { display: block; }
         .day-indicator .positive-profit { color: var(--accent-color); } 
@@ -322,11 +324,6 @@
             .stats-container { gap: 10px; }
             .stat-card { padding: 15px; }
             .stat-value { font-size: 20px; }
-            .calendar-grid { gap: 8px; }
-            /* 移动端稍微减小高度，但仍比原来大 */
-            .day-cell { min-height: 70px; border-radius: 10px; padding: 8px 2px; }
-            .day-number { font-size: 16px; margin-bottom: 4px; }
-            .day-indicator { font-size: 10px; }
         }
     </style>
 </head>
